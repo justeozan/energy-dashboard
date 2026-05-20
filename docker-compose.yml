@@ -1,0 +1,11 @@
+version: "3.9"
+
+services:
+  dashboard:
+    build: .
+    ports:
+      - "8501:8501"
+    environment:
+      CO2_THRESHOLD: "100"
+      REFRESH_INTERVAL_SECONDS: "300"
+    restart: unless-stopped
