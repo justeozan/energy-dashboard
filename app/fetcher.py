@@ -45,7 +45,7 @@ def fetch_history(hours: int = 24) -> pd.DataFrame:
     results = _get(
         {
             "order_by": "date_heure asc",
-            "limit": 200,
+            "limit": 100,
             "where": f"date_heure >= '{since}' and consommation is not null",
         }
     )
