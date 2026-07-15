@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import requests
 import pandas as pd
 import numpy as np
@@ -32,7 +34,7 @@ def _get(params: dict) -> list | None:
 
 
 def fetch_latest() -> dict | None:
-    results = _get({"order_by": "date_heure desc", "limit": 1})
+    results = _get({"order_by": "date_heure desc", "limit": 1, "where": "consommation is not null"})
     return results[0] if results else None
 
 
@@ -43,8 +45,8 @@ def fetch_history(hours: int = 24) -> pd.DataFrame:
     results = _get(
         {
             "order_by": "date_heure asc",
-            "limit": 200,
-            "where": f"date_heure >= '{since}'",
+            "limit": 100,
+            "where": f"date_heure >= '{since}' and consommation is not null",
         }
     )
     if not results:
