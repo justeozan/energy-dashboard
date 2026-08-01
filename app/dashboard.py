@@ -1,4 +1,5 @@
 import os
+import base64
 import streamlit as st
 import plotly.graph_objects as go
 import pandas as pd
@@ -26,7 +27,43 @@ PALETTE = {
     "Charbon":      "#7E57C2",
 }
 
-GRADIENT_LINE = ["#6C63FF", "#5B8DEF", "#4FC3F7", "#7C4DFF", "#B388FF", "#90CAF9", "#82B1FF", "#7E57C2"]
+
+def _glow_svg(stops):
+    """SVG data-URI d'un halo radial (sphere lumineuse) en dégradé.
+
+    stops: liste de tuples (offset_%, couleur_hex, opacite).
+    """
+    stops_svg = "\n".join(
+        f'<stop offset="{o}%" stop-color="{c}" stop-opacity="{a}"/>'
+        for o, c, a in stops
+    )
+    svg = (
+        '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400">'
+        '<defs><radialGradient id="g" cx="50%" cy="45%" r="68%">'
+        + stops_svg
+        + "</radialGradient></defs>"
+        '<rect width="100%" height="100%" fill="url(#g)"/>'
+        "</svg>"
+    )
+    return "data:image/svg+xml;base64," + base64.b64encode(svg.encode()).decode()
+
+
+def add_glow(fig, colors, opacity=1.0):
+    """Pose un halo radial discret derrière un graphique Plotly."""
+    fig.add_layout_image(
+        dict(
+            source=_glow_svg(colors),
+            xref="paper",
+            yref="paper",
+            x=0,
+            y=1,
+            sizex=1,
+            sizey=1,
+            opacity=opacity,
+            layer="below",
+        )
+    )
+
 
 st.set_page_config(
     page_title="Énergie France",
@@ -377,6 +414,11 @@ with col_mix:
             hovertemplate="<b>%{label}</b><br>%{value:,} MW<br>%{percent}<extra></extra>",
         )
     )
+    add_glow(
+        fig_pie,
+        [(0, "#7C4DFF", 0.20), (60, "#6C63FF", 0.08), (100, "#4FC3F7", 0.0)],
+        opacity=1.0,
+    )
     fig_pie.update_layout(
         showlegend=False,
         margin=dict(t=2, b=2, l=2, r=2),
@@ -396,7 +438,10 @@ with col_bar:
             y=prod_sorted["Source"],
             orientation="h",
             marker=dict(
-                color=[PALETTE.get(s, "#444") for s in prod_sorted["Source"]],
+                color=prod_sorted["MW"].tolist(),
+                colorscale=[[0, "#4FC3F7"], [0.5, "#6C63FF"], [1, "#B388FF"]],
+                cmin=0,
+                cmax=prod_sorted["MW"].max(),
                 line=dict(color="#000", width=0),
             ),
             text=prod_sorted["MW"].apply(lambda x: f"{x:,}"),
@@ -405,6 +450,11 @@ with col_bar:
             textfont_color="#666",
             hovertemplate="<b>%{y}</b><br>%{x:,} MW<extra></extra>",
         )
+    )
+    add_glow(
+        fig_bar,
+        [(0, "#6C63FF", 0.18), (60, "#4FC3F7", 0.07), (100, "#4FC3F7", 0.0)],
+        opacity=1.0,
     )
     fig_bar.update_layout(
         showlegend=False,
@@ -436,6 +486,11 @@ if not history.empty:
                 hovertemplate="%{x|%H:%M}<br>%{y:,} MW<extra></extra>",
             )
         )
+        add_glow(
+            fig_conso,
+            [(0, "#6C63FF", 0.15), (60, "#4FC3F7", 0.06), (100, "#4FC3F7", 0.0)],
+            opacity=1.0,
+        )
         fig_conso.update_layout(
             margin=dict(t=4, b=4, l=4, r=4),
             height=170,
@@ -459,6 +514,11 @@ if not history.empty:
                 fillcolor="rgba(255,112,67,0.06)",
                 hovertemplate="%{x|%H:%M}<br>%{y} g/kWh<extra></extra>",
             )
+        )
+        add_glow(
+            fig_co2,
+            [(0, "#FF7043", 0.14), (60, "#FFB74D", 0.06), (100, "#FFB74D", 0.0)],
+            opacity=1.0,
         )
         fig_co2.add_hline(
             y=CO2_THRESHOLD,
@@ -510,6 +570,11 @@ if not history.empty:
                     hovertemplate=f"<b>{label}</b><br>%{{y:,}} MW<extra></extra>",
                 )
             )
+        add_glow(
+            fig_area,
+            [(0, "#5B8DEF", 0.12), (60, "#7C4DFF", 0.05), (100, "#7C4DFF", 0.0)],
+            opacity=1.0,
+        )
         fig_area.update_layout(
             margin=dict(t=4, b=4, l=4, r=4),
             height=190,
