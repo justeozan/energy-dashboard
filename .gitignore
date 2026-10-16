@@ -1,6 +1,19 @@
-__pycache__/
-*.pyc
-*.pyo
-.env
+# Dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+
+# Vercel
+.vercel
+
+# Env (dont le .env.local créé par `vercel link`)
+.env*
+
+# OS / tools
 .DS_Store
 .gstack/
+npm-debug.log*
