@@ -1,54 +1,35 @@
-# ⚡ Dashboard Énergie France — Temps Réel
+# ⚡ Énergie France
 
-Dashboard de monitoring énergétique national en temps réel, branché sur l'API publique RTE eco2mix (ODRE).
+**Le réseau électrique français, en direct.**
 
-## Ce que ça affiche
+▶ **[energy-dashboard-red.vercel.app](https://energy-dashboard-red.vercel.app)**
 
-- **Production par source** : nucléaire, hydraulique, éolien, solaire, bioénergies, gaz, fioul, charbon
-- **Consommation nationale** en MW
-- **Mix énergétique** (donut + barres horizontales)
-- **Émissions CO₂** en gCO₂eq/kWh avec seuil d'alerte configurable
-- **Historique 24h** : consommation, CO₂, et production empilée par source
-- **Rafraîchissement automatique** toutes les 5 minutes
+<p align="center">
+  <img src="docs/images/jour.png" alt="Tableau de bord, thème jour" width="100%">
+</p>
 
-## Lancement rapide
+<table>
+  <tr>
+    <td width="50%"><img src="docs/images/production.png" alt="Vue production"></td>
+    <td width="50%"><img src="docs/images/nuit.png" alt="Vue échanges, thème nuit"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Production par filière</sub></td>
+    <td align="center"><sub>Échanges avec les voisins · thème nuit</sub></td>
+  </tr>
+</table>
 
-### Avec Docker (recommandé)
+## 🔄 Mis à jour toutes les 5 minutes
+
+Données RTE éCO2mix · pas de 15 minutes · mode démo si la source est indisponible
+
+## 🧪 Lancer en local
 
 ```bash
-docker-compose up --build
+npm install
+npm run dev
 ```
 
-Dashboard accessible sur [http://localhost:8501](http://localhost:8501)
+Puis ouvrir [localhost:3000](http://localhost:3000). Ou avec Docker : `docker compose up --build`.
 
-### Sans Docker
-
-```bash
-pip install -r requirements.txt
-streamlit run app/dashboard.py
-```
-
-## Configuration
-
-Variables d'environnement disponibles :
-
-| Variable | Défaut | Description |
-|---|---|---|
-| `CO2_THRESHOLD` | `100` | Seuil CO₂ en gCO₂eq/kWh déclenchant l'alerte |
-| `REFRESH_INTERVAL_SECONDS` | `300` | Fréquence de rafraîchissement (secondes) |
-
-## Source des données
-
-API publique ODRE (Open Data Réseaux Énergies) — dataset `eco2mix-national-tr`  
-→ `https://odre.opendatasoft.com`
-
-- Gratuit, sans inscription, sans clé API
-- Données mises à jour toutes les 15 minutes
-- Quota : 50 000 appels/mois
-
-## Stack
-
-- **Python 3.11** + **Streamlit** — dashboard web
-- **Plotly** — graphiques interactifs
-- **Pandas** — traitement des données
-- **Docker** — déploiement conteneurisé
+<sub>Source : [ODRE](https://odre.opendatasoft.com), dataset `eco2mix-national-tr` · Seuil CO₂ et fréquence réglables via `CO2_THRESHOLD` et `REFRESH_INTERVAL_SECONDS`.</sub>
